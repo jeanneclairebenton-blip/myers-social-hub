@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Myers Home Buyers — Social Hub</title>
+<meta name="description" content="Unified social media command center for Myers Home Buyers. Create, schedule, and publish content.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="myers-social-hub.css">
+</head>
+<body>
+
+<!-- TOP NAV -->
+<header class="topnav">
+  <div class="topnav-brand">
+    <img src="MHB_Logo_4C-Pos (2).png" alt="Myers Home Buyers">
+    <div>
+      <h1>Social Hub</h1>
+      <span>AI Marketing Engine</span>
+    </div>
+  </div>
+  <div class="topnav-actions">
+    <button onclick="showSocialSetupModal()">Connect Social</button>
+    <button onclick="openNewPost()">+ New Post</button>
+    <button class="btn-gold-sm" onclick="switchTab('generator')">Create Post</button>
+    <button onclick="downloadBackup()" title="Backup">Backup</button>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tab-bar" id="tabBar">
+  <button class="tab-btn active" onclick="switchTab('dashboard')" data-tab="dashboard">Dashboard</button>
+  <button class="tab-btn" onclick="switchTab('calendar')" data-tab="calendar">Calendar</button>
+  <button class="tab-btn" onclick="switchTab('generator')" data-tab="generator">Post Generator</button>
+  <button class="tab-btn" onclick="switchTab('welcome')" data-tab="welcome">Welcome Template</button>
+  <button class="tab-btn" onclick="switchTab('trends')" data-tab="trends">Trends <span class="badge">12</span></button>
+  <button class="tab-btn" onclick="switchTab('queue')" data-tab="queue">Queue</button>
+  <button class="tab-btn" onclick="switchTab('library')" data-tab="library">Content Library <span class="badge" id="libraryBadge">0</span></button>
+  <button class="tab-btn" onclick="switchTab('team')" data-tab="team">AI Review</button>
+  <button class="tab-btn" onclick="switchTab('approvals')" data-tab="approvals">Approvals <span class="badge" id="approvalBadge">0</span></button>
+</div>
+
+<div class="main-content">
+
+<!-- ============================== -->
+<!-- DASHBOARD TAB -->
+<!-- ============================== -->
+<div class="tab-panel active" id="panel-dashboard">
+  <div class="stats-row">
+    <div class="stat-card gold"><div class="stat-val" id="totalPosts">0</div><div class="stat-lbl">Posts Created</div></div>
+    <div class="stat-card blue"><div class="stat-val" id="scheduledPosts">0</div><div class="stat-lbl">Scheduled</div></div>
+    <div class="stat-card green"><div class="stat-val" id="postedPosts">0</div><div class="stat-lbl">Published</div></div>
+    <div class="stat-card orange"><div class="stat-val" id="pendingApproval">0</div><div class="stat-lbl">Pending Approval</div></div>
+    <div class="stat-card purple"><div class="stat-val">5</div><div class="stat-lbl">AI Team</div></div>
+  </div>
+
+  <div class="grid-2">
+    <!-- This Week Preview -->
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">This Week's Posts</div><div class="card-subtitle" id="dashWeekLabel">Loading...</div></div>
+      </div>
+      <div id="dashWeekPlan"><!-- JS --></div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Quick Actions</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+        <button class="pillar-btn" onclick="switchTab('calendar')" style="justify-content:center">Calendar</button>
+        <button class="pillar-btn" onclick="switchTab('generator')" style="justify-content:center">Generate Post</button>
+        <button class="pillar-btn" onclick="switchTab('welcome')" style="justify-content:center">Welcome Card</button>
+        <button class="pillar-btn" onclick="switchTab('trends')" style="justify-content:center">View Trends</button>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:16px">
+        <div class="card-title" style="margin-bottom:12px">Publishing Status</div>
+        <div id="dashPublishStatus" style="font-size:12px;color:var(--text-secondary)">Click "Connect Social" to enable direct publishing to Facebook, Instagram & LinkedIn.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- CALENDAR TAB (from Content Desk) -->
+<!-- ============================== -->
+<div class="tab-panel" id="panel-calendar">
+  <!-- Filter Bar -->
+  <div class="cal-toolbar">
+    <div class="stat-pills">
+      <button class="stat-pill active" data-status="all" onclick="filterByStatus('all')"><span class="dot all"></span>All <b id="countAll">0</b></button>
+      <button class="stat-pill" data-status="Draft" onclick="filterByStatus('Draft')"><span class="dot draft"></span>Draft <b id="countDraft">0</b></button>
+      <button class="stat-pill" data-status="Pending" onclick="filterByStatus('Pending')"><span class="dot pending"></span>Pending <b id="countPending">0</b></button>
+      <button class="stat-pill" data-status="Approved" onclick="filterByStatus('Approved')"><span class="dot approved"></span>Approved <b id="countApproved">0</b></button>
+      <button class="stat-pill" data-status="Scheduled" onclick="filterByStatus('Scheduled')"><span class="dot scheduled"></span>Scheduled <b id="countScheduled">0</b></button>
+      <button class="stat-pill" data-status="Posted" onclick="filterByStatus('Posted')"><span class="dot posted"></span>Posted <b id="countPosted">0</b></button>
+    </div>
+    <div class="cal-toolbar-right">
+      <select id="pillarFilter" onchange="filterByPillar(this.value)">
+        <option value="all">All pillars</option>
+        <option value="Welcome">Welcome</option>
+        <option value="Mentor">Mentor / Book</option>
+        <option value="Agent Win">Agent Win</option>
+        <option value="Education">Education</option>
+        <option value="Culture">Culture</option>
+        <option value="Spotlight">Spotlight</option>
+        <option value="Evolution">Evolution</option>
+        <option value="Awards">Awards</option>
+      </select>
+      <div class="view-toggle">
+        <button class="vt active" onclick="setView('week')" data-view="week">Week</button>
+        <button class="vt" onclick="setView('month')" data-view="month">Month</button>
+        <button class="vt" onclick="setView('list')" data-view="list">List</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Week View -->
+  <div id="weekView" class="view-panel active">
+    <div class="week-nav">
+      <h2 id="weekLabel" class="week-title"></h2>
+      <div class="week-btns">
+        <button onclick="changeWeek(-1)">◀</button>
+        <button onclick="changeWeek(0)" class="btn-today">This week</button>
+        <button onclick="changeWeek(1)">▶</button>
+      </div>
+    </div>
+    <div class="week-grid" id="weekGrid"></div>
+  </div>
+
+  <!-- Month View -->
+  <div id="monthView" class="view-panel">
+    <div class="week-nav">
+      <h2 id="monthLabel" class="week-title"></h2>
+      <div class="week-btns">
+        <button onclick="changeMonth(-1)">◀</button>
+        <button onclick="changeMonth(0)" class="btn-today">This month</button>
+        <button onclick="changeMonth(1)">▶</button>
+      </div>
+    </div>
+    <div class="month-day-headers" id="monthDayHeaders"></div>
+    <div class="month-grid" id="monthGrid"></div>
+    <div class="month-legend" id="monthLegend"></div>
+  </div>
+
+  <!-- List View -->
+  <div id="listView" class="view-panel">
+    <div id="listContent"></div>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- POST GENERATOR TAB -->
+<!-- ============================== -->
+<div class="tab-panel" id="panel-generator">
+  <div class="section-header">
+    <div><h2>AI Post Generator</h2><p>Select a content pillar and generate on-brand posts instantly</p></div>
+  </div>
+  <div class="generator-layout">
+    <div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px">Select Content Pillar</div>
+        <div class="pillar-selector">
+          <button class="pillar-btn active" onclick="selectPillar(this,'speaker')"><span class="pillar-icon">S</span> Guest Speaker</button>
+          <button class="pillar-btn" onclick="selectPillar(this,'social')"><span class="pillar-icon">E</span> Social Event</button>
+          <button class="pillar-btn" onclick="selectPillar(this,'book')"><span class="pillar-icon">B</span> Book Excerpt</button>
+          <button class="pillar-btn" onclick="selectPillar(this,'flip')"><span class="pillar-icon">H</span> Agent Investment</button>
+          <button class="pillar-btn" onclick="selectPillar(this,'innovation')"><span class="pillar-icon">I</span> Innovation</button>
+          <button class="pillar-btn" onclick="selectPillar(this,'welcome')"><span class="pillar-icon">W</span> Welcome</button>
+          <button class="pillar-btn" onclick="selectPillar(this,'carrot')"><span class="pillar-icon">C</span> Carrot Partnership</button>
+        </div>
+        <div id="generatorFields"></div>
+        <div class="form-group">
+          <label>Target Platforms</label>
+          <div class="platform-badges" style="gap:8px">
+            <label class="pillar-btn" style="padding:8px 12px;cursor:pointer"><input type="checkbox" checked class="gen-plat" value="Facebook" style="margin-right:6px"> Facebook</label>
+            <label class="pillar-btn" style="padding:8px 12px;cursor:pointer"><input type="checkbox" checked class="gen-plat" value="Instagram" style="margin-right:6px"> Instagram</label>
+            <label class="pillar-btn" style="padding:8px 12px;cursor:pointer"><input type="checkbox" checked class="gen-plat" value="LinkedIn" style="margin-right:6px"> LinkedIn</label>
+            <label class="pillar-btn" style="padding:8px 12px;cursor:pointer"><input type="checkbox" class="gen-plat" value="TikTok" style="margin-right:6px"> TikTok</label>
+          </div>
+        </div>
+        <button class="btn-generate" id="generateBtn" onclick="generatePost()">Generate Post</button>
+      </div>
+    </div>
+    <div>
+      <div class="preview-card">
+        <div class="preview-header"><h3>Post Preview</h3></div>
+        <div class="preview-body">
+          <div class="preview-post" id="previewPost">Select a content pillar and fill in the details, then click "Generate Post" to see your AI-crafted content here.</div>
+          <div class="preview-hashtags" id="previewHashtags"></div>
+          <div class="preview-actions" id="previewActions" style="display:none">
+            <button onclick="copyPost()">Copy</button>
+            <button onclick="addGeneratedToCalendar()">Add to Calendar</button>
+            <button onclick="regeneratePost()">Regenerate</button>
+            <button onclick="sendToReview()">AI Review</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- WELCOME TEMPLATE TAB -->
+<!-- ============================== -->
+<div class="tab-panel" id="panel-welcome">
+  <div class="section-header">
+    <div><h2>Welcome to the Team Template</h2><p>Generate branded welcome cards for new agents</p></div>
+  </div>
+  <div class="generator-layout">
+    <div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px">New Agent Details</div>
+        <div class="form-group"><label>Agent Full Name</label><input type="text" id="welcomeName" placeholder="e.g. Sarah Mitchell" oninput="updateWelcome()"></div>
+        <div class="form-group"><label>Role / Title</label>
+          <select id="welcomeRole" onchange="updateWelcome()">
+            <option>Investor-Agent</option><option>Acquisitions Agent</option><option>Sales Agent</option><option>Team Lead</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Location</label><input type="text" id="welcomeLocation" placeholder="e.g. Dallas, TX" value="DFW" oninput="updateWelcome()"></div>
+        <div class="form-group"><label>Fun Fact (optional)</label><input type="text" id="welcomeFact" placeholder="e.g. Former Marine, loves flipping" oninput="updateWelcome()"></div>
+        <div class="form-group"><label>Start Date</label><input type="date" id="welcomeDate" oninput="updateWelcome()"></div>
+        <button class="btn-generate" onclick="generateWelcomeCaption()">Generate Welcome Post & Caption</button>
+        <div id="welcomeCaption" style="margin-top:16px"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card-title" style="margin-bottom:12px">Card Preview</div>
+      <div class="welcome-preview" id="welcomeCard">
+        <div class="welcome-badge">Welcome to Myers</div>
+        <h3 id="wCardName">Agent Name</h3>
+        <div class="welcome-role" id="wCardRole">Investor-Agent · DFW</div>
+        <div class="welcome-divider"></div>
+        <div class="welcome-msg" id="wCardMsg">"Ready to build wealth and change lives."</div>
+        <img src="MHB_Logo_4C-Pos (2).png" alt="Myers" class="welcome-logo">
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <button class="pillar-btn" style="display:inline-flex;justify-content:center" onclick="addWelcomeToCalendar()">Add to Calendar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- TRENDS TAB -->
+<!-- ============================== -->
+<div class="tab-panel" id="panel-trends">
+  <div class="section-header">
+    <div><h2>Trending Now</h2><p>Real-time trending hashtags & keywords in real estate</p></div>
+    <button class="pillar-btn" onclick="refreshTrends()" style="padding:10px 20px">Refresh Trends</button>
+  </div>
+  <div class="grid-2">
+    <div class="card"><div class="card-header"><div class="card-title">Trending Hashtags</div></div><ul class="trend-list" id="trendHashtags"></ul></div>
+    <div class="card"><div class="card-header"><div class="card-title">Trending Keywords — DFW</div></div><ul class="trend-list" id="trendKeywords"></ul></div>
+  </div>
+  <div class="card" style="margin-top:20px">
+    <div class="card-header"><div class="card-title">Content Ideas</div></div>
+    <div class="grid-3" id="trendIdeas"></div>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- QUEUE TAB -->
+<!-- ============================== -->
+<div class="tab-panel" id="panel-queue">
+  <div class="section-header">
+    <div><h2>Schedule Queue</h2><p>Posts ready to publish — approve and push live</p></div>
+    <button class="btn-gold-sm" onclick="openNewPost()" style="padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-weight:600">+ Add to Queue</button>
+  </div>
+  <div id="queueList"></div>
+</div>
+
+<!-- ============================== -->
+<!-- CONTENT LIBRARY TAB -->
+<!-- ============================== -->
+<div class="tab-panel" id="panel-library">
+  <div class="section-header">
+    <div><h2>Content Library</h2><p>Pre-generated posts from book chapters — browse, copy, edit & schedule</p></div>
+    <div style="display:flex;gap:8px">
+      <select id="libraryChapterFilter" onchange="renderLibrary()" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);font-size:13px">
+        <option value="all">All Posts</option>
+        <option value="ch1">Ch 1 — Rise of the Investor-Agent</option>
+        <option value="ch2">Ch 2 — Thinking Like an Investor</option>
+        <option value="ch3">Ch 3 — Budgeting & Cash Management</option>
+        <option value="ch4">Ch 4 — Valuation, Discounts & Demand</option>
+        <option value="ch5">Ch 5 — Full Deal Timeline</option>
+        <option value="user">My Generated Posts</option>
+      </select>
+      <select id="libraryPlatformFilter" onchange="renderLibrary()" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);font-size:13px">
+        <option value="all">All Platforms</option>
+        <option value="facebook">Facebook</option>
+        <option value="linkedin">LinkedIn</option>
+      </select>
+    </div>
+  </div>
+  <div id="libraryGrid" style="display:flex;flex-direction:column;gap:16px"></div>
+</div>
+
+<!-- ============================== -->
+<!-- AI TEAM REVIEW TAB -->
+<!-- ============================== -->
+<div class="tab-panel" id="panel-team">
+  <div class="section-header"><div><h2>AI Marketing Team</h2><p>Your virtual team reviews and improves every post</p></div></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title" style="margin-bottom:4px">Meet Your Team</div>
+      <div class="card-subtitle" style="margin-bottom:16px">Each member has a unique role</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="team-member"><div class="review-avatar strategist">CS</div><div><div style="font-weight:600;font-size:14px">Content Strategist</div><div style="font-size:12px;color:var(--text-secondary)">Writes drafts, hooks, and CTAs</div></div></div>
+        <div class="team-member"><div class="review-avatar editor">EC</div><div><div style="font-weight:600;font-size:14px">Editor / Challenger</div><div style="font-size:12px;color:var(--text-secondary)">Pushes for better engagement</div></div></div>
+        <div class="team-member"><div class="review-avatar creative">CD</div><div><div style="font-weight:600;font-size:14px">Creative Director</div><div style="font-size:12px;color:var(--text-secondary)">Ensures brand consistency</div></div></div>
+        <div class="team-member"><div class="review-avatar trend">TA</div><div><div style="font-weight:600;font-size:14px">Trend Analyst</div><div style="font-size:12px;color:var(--text-secondary)">Monitors trends for viral elements</div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:4px">Latest Review</div>
+      <div class="card-subtitle" style="margin-bottom:16px">Generate a post then click "AI Review"</div>
+      <div id="reviewThread" class="review-thread">
+        <div style="text-align:center;padding:40px;color:var(--text-muted)">
+          <div style="font-size:20px;margin-bottom:12px;font-weight:700;color:var(--gold)">AI</div>
+          <p>Generate a post and click "AI Review" to see your team in action</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- APPROVALS TAB -->
+<!-- ============================== -->
+<div class="tab-panel" id="panel-approvals">
+  <div class="section-header">
+    <div><h2>Post Approvals</h2><p>Review pending posts before they go live — approve or request changes</p></div>
+  </div>
+  <div id="approvalsList" style="display:flex;flex-direction:column;gap:16px">
+    <div class="card" style="text-align:center;padding:60px 20px;color:var(--text-muted)">
+      <div style="font-size:20px;font-weight:700;color:var(--gold);margin-bottom:12px">No Pending Approvals</div>
+      <p>When posts are submitted for approval, they'll appear here for review.</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<!-- POST MODAL (from Content Desk) -->
+<div class="modal-overlay" id="postModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="modalTitle">New Post</h2>
+      <button onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="upload-zone" id="uploadZone" ondrop="handleDrop(event)" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')">
+        <div class="upload-icon" style="font-size:24px;font-weight:700;color:var(--gold)">+</div>
+        <div class="upload-text">Drop photos or videos here</div>
+        <input type="file" id="fileInput" accept="image/*,video/*" multiple onchange="handleFiles(this.files)" style="display:none">
+        <button class="btn-outline" onclick="document.getElementById('fileInput').click()" style="margin-top:12px">Browse Files</button>
+      </div>
+      <div class="uploaded-grid" id="uploadedGrid"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Date</label><input type="date" id="postDate"></div>
+        <div class="form-group"><label>Optimal Time</label>
+          <select id="postTime">
+            <option value="7:00 AM">7:00 AM — LinkedIn peak</option>
+            <option value="9:00 AM">9:00 AM — Facebook peak</option>
+            <option value="11:00 AM" selected>11:00 AM — Instagram peak</option>
+            <option value="12:30 PM">12:30 PM — Lunch scroll</option>
+            <option value="5:30 PM">5:30 PM — Post-work</option>
+            <option value="7:00 PM">7:00 PM — Reels prime</option>
+            <option value="8:00 PM">8:00 PM — TikTok peak</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Content Pillar</label>
+          <select id="postPillar" onchange="suggestCaption()">
+            <option value="Welcome">Welcome</option><option value="Mentor">Mentor / Book</option>
+            <option value="Agent Win">Agent Win</option><option value="Education">Education</option>
+            <option value="Culture">Culture</option><option value="Spotlight">Spotlight</option>
+            <option value="Evolution">Evolution</option><option value="Awards">Awards</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Status</label>
+          <select id="postStatus">
+            <option value="Draft">Draft</option><option value="Pending">Pending Review</option>
+            <option value="Approved">Approved</option><option value="Scheduled">Scheduled</option><option value="Posted">Posted</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Platforms</label>
+        <div class="platform-row">
+          <label class="plat-check"><input type="checkbox" value="Facebook" checked> Facebook</label>
+          <label class="plat-check"><input type="checkbox" value="Instagram" checked> Instagram</label>
+          <label class="plat-check"><input type="checkbox" value="LinkedIn" checked> LinkedIn</label>
+          <label class="plat-check"><input type="checkbox" value="TikTok"> TikTok</label>
+          <label class="plat-check"><input type="checkbox" value="YouTube"> YouTube</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <div style="display:flex;justify-content:space-between;align-items:center"><label>Caption</label><button class="btn-sm" onclick="suggestCaption()">AI Suggest</button></div>
+        <textarea id="postCopy" rows="5" placeholder="Write your caption or click AI Suggest..."></textarea>
+      </div>
+      <div class="form-group">
+        <div style="display:flex;justify-content:space-between;align-items:center"><label>Hashtags</label><button class="btn-sm" onclick="suggestHashtags()">Trending</button></div>
+        <textarea id="postHashtags" rows="2" placeholder="#MyersHomebuyers #DFWRealEstate"></textarea>
+      </div>
+      <div class="form-group"><label>Visual Notes</label><textarea id="postVisualNotes" rows="2" placeholder="e.g. Before/after carousel, 5 slides"></textarea></div>
+      <div class="form-group"><label>Review Notes (Josh)</label><textarea id="postNotes" rows="2" placeholder="Feedback or change requests"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn-outline" onclick="if(editingId) publishPostNow(editingId)" style="background:#10B981;color:#fff;border-color:#10B981">Publish Now</button>
+      <button class="btn-gold" onclick="savePost()">Save Post</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="firebase-config.js"></script>
+<script src="myers-social-hub.js"></script>
+</body>
+</html>
